@@ -1,6 +1,17 @@
+const babelRegister = require("@babel/register");
+
+babelRegister({
+  ignore: [/[\\\/](build|server|node_modules)[\\\/]/],
+  presets: [["@babel/preset-react", { runtime: "automatic" }]],
+  plugins: ["@babel/transform-modules-commonjs"],
+});
+
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
+const React = require("react");
+const App = require("../client/App").default;
+const { renderToString } = require("react-dom/server");
 
 const app = express();
 const PORT = 3001;
@@ -11,16 +22,22 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static files (if needed for other assets)
+app.use(express.static(path.join(__dirname, "../dist")));
+
 // Temporary data store (could be replaced with a database)
 let todos = [
   { text: "Learn about MPAs" },
   { text: "Implement To-Do app with Express" },
 ];
 
-// Serve static files (if needed for other assets)
-// app.use(express.static(path.join(__dirname, "dist")));
+app.get("/ssr/react", (req, res) => {
+  const reactElement = React.createElement(App);
+  const html = renderToString(reactElement);
+  res.send(html);
+});
 
-app.get("/api/serverPage", (req, res) => {
+app.get("/ssr/traditionalSSR", (req, res) => {
   res.sendFile(path.join(__dirname, "./server.example.html"));
 });
 

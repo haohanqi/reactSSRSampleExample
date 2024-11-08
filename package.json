@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "serve": "nodemon ./server/server.js",
-    "start": "npx webpack build --config ./webpack.config.js && webpack serve --open"
+    "start": "npx webpack build --config ./webpack.config.js && npm run serve"
   },
   "author": "",
   "license": "ISC",

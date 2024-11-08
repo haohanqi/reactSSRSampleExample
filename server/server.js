@@ -31,9 +31,58 @@ let todos = [
   { text: "Implement To-Do app with Express" },
 ];
 
-app.get("/ssr/react", (req, res) => {
+app.get("/", (req, res) => {
   const reactElement = React.createElement(App);
   const html = renderToString(reactElement);
+  res.send(html);
+});
+
+app.get("/ssr/react/hydration", (req, res) => {
+  const reactElement = React.createElement(App);
+  const reactHtml = renderToString(reactElement);
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>React SSR with Initial Props</title>
+    </head>
+    <body>
+      <div id="root">${reactHtml}</div>
+      <script src="/index.bundle.js" defer></script>
+       <script src="/runtime.bundle.js" defer></script>
+    </body>
+    </html>
+  `;
+
+  res.send(html);
+});
+
+app.get("/ssr/react/withData", (req, res) => {
+  const initialProps = { initCount: 10 };
+  const reactElement = React.createElement(App, initialProps);
+  const reactHtml = renderToString(reactElement);
+  // Create HTML with embedded initial props
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>React SSR with Initial Props</title>
+      <!-- Embed the initial props as JSON in a script tag -->
+      <script>
+        window.__INITIAL_PROPS__ = ${JSON.stringify(initialProps)};
+      </script>
+    </head>
+    <body>
+      <div id="root">${reactHtml}</div>
+      <script src="/index.bundle.js" defer></script>
+       <script src="/runtime.bundle.js" defer></script>
+    </body>
+    </html>
+  `;
   res.send(html);
 });
 

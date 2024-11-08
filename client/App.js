@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
-const App = () => {
-  let [count, setCount] = useState(0);
+const App = ({ initCount = 0 }) => {
+  let [count, setCount] = useState(initCount);
   return (
     <div>
       this is a react component

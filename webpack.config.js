@@ -12,12 +12,6 @@ module.exports = () => {
     devServer: {
       static: path.resolve(__dirname, "dist"),
       port: 8080, // Port for webpack-dev-server
-      proxy: [
-        {
-          context: ["/api", "/ssr"],
-          target: "http://localhost:3001",
-        },
-      ],
     },
     module: {
       rules: [
@@ -31,16 +25,16 @@ module.exports = () => {
         },
       ],
     },
-    plugins: [
-      new HtmlWebpackPlugin({
-        title: "Development",
-        template: path.resolve(
-          __dirname,
-          "./hydrate.html"
-          //   env.RENDER_TYPE === "reactssr" ? "./hydrate.html" : "./index.html"
-        ),
-      }),
-    ],
+    // plugins: [
+    //   new HtmlWebpackPlugin({
+    //     title: "Development",
+    //     // template: path.resolve(
+    //     //   __dirname,
+    //     //   "./hydrate.html"
+    //     //   //   env.RENDER_TYPE === "reactssr" ? "./hydrate.html" : "./index.html"
+    //     // ),
+    //   }),
+    // ],
     output: {
       filename: "[name].bundle.js",
       path: path.resolve(__dirname, "dist"),

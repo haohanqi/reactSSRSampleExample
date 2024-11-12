@@ -1,4 +1,5 @@
 const babelRegister = require("@babel/register");
+const staticHtmlTemplate = require("../utils/staticHtmlTemplate");
 
 babelRegister({
   ignore: [/[\\\/](build|server|node_modules)[\\\/]/],
@@ -15,7 +16,6 @@ const { renderToString } = require("react-dom/server");
 
 const app = express();
 const PORT = 3001;
-
 app.use(cors());
 
 // Middleware to parse URL-encoded data
@@ -40,21 +40,7 @@ app.get("/", (req, res) => {
 app.get("/ssr/react/hydration", (req, res) => {
   const reactElement = React.createElement(App);
   const reactHtml = renderToString(reactElement);
-  const html = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>React SSR with Initial Props</title>
-    </head>
-    <body>
-      <div id="root">${reactHtml}</div>
-      <script src="/index.bundle.js" defer></script>
-       <script src="/runtime.bundle.js" defer></script>
-    </body>
-    </html>
-  `;
+  const html = staticHtmlTemplate(undefined, reactHtml);
 
   res.send(html);
 });
@@ -63,38 +49,32 @@ app.get("/ssr/react/withData", (req, res) => {
   const initialProps = { initCount: 10 };
   const reactElement = React.createElement(App, initialProps);
   const reactHtml = renderToString(reactElement);
-  // Create HTML with embedded initial props
-  const html = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>React SSR with Initial Props</title>
-      <!-- Embed the initial props as JSON in a script tag -->
-      <script>
-        window.__INITIAL_PROPS__ = ${JSON.stringify(initialProps)};
-      </script>
-    </head>
-    <body>
-      <div id="root">${reactHtml}</div>
-      <script src="/index.bundle.js" defer></script>
-       <script src="/runtime.bundle.js" defer></script>
-    </body>
-    </html>
-  `;
+  const html = staticHtmlTemplate(initialProps, reactHtml);
   res.send(html);
 });
 
 app.get("/ssr/traditionalSSR", (req, res) => {
-  res.sendFile(path.join(__dirname, "./server.example.html"));
-});
-
-// To-Do list route
-app.get("/api/todo", (req, res) => {
-  res.setHeader("Content-Type", "text/html");
-  res.send(`
-    <ul>${todos.map((todo) => `<li>${todo.text}</li>`).join("")}</ul>`);
+  //res.sendFile(path.join(__dirname, "./server.example.html"));
+  const html = `
+  <!DOCTYPE html>
+  <html>
+    <body>
+      <p>
+        this is a traditional server side render serverPage <br />Backend will
+        return html to the browser
+      </p>
+      <form action="/api/todo/add" method="post">
+        <label for="todo">new todo</label>
+        <input type="text" name="content" id="todo" />
+        <button type="submit">Submit</button>
+      </form>
+      <ul>
+        ${todos.map((todo) => `<li>${todo.text}</li>`).join("")}
+      </ul>
+    </body>
+  </html>
+  `;
+  res.send(html);
 });
 
 // Handle new to-do submission
@@ -105,7 +85,7 @@ app.post("/api/todo/add", (req, res) => {
     todos.push({ text: newTodo });
   }
   // Redirect to /todo to display updated list
-  res.redirect("http://localhost:8080");
+  res.redirect("http://localhost:3001/ssr/traditionalSSR");
 });
 
 app.listen(PORT, () => {

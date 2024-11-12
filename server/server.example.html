@@ -1,7 +1,14 @@
 <!DOCTYPE html>
 <html>
   <body>
-    this is a traditional server side render serverPage <br />
-    Backend will return html to the browser
+    <p>
+      this is a traditional server side render serverPage <br />Backend will
+      return html to the browser
+    </p>
+    <form action="/api">
+      <label for="todo">new todo</label>
+      <input type="text" name="content" id="todo" />
+      <button type="submit">Submit</button>
+    </form>
   </body>
 </html>

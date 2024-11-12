@@ -1,12 +1,10 @@
 const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = () => {
   const config = {
     mode: "development",
     entry: {
       index: "./hydrate.js",
-      //index: env.RENDER_TYPE === "reactssr" ? "./hydrate.js" : "./index.js",
     },
     devtool: "inline-source-map",
     devServer: {
@@ -25,16 +23,6 @@ module.exports = () => {
         },
       ],
     },
-    // plugins: [
-    //   new HtmlWebpackPlugin({
-    //     title: "Development",
-    //     // template: path.resolve(
-    //     //   __dirname,
-    //     //   "./hydrate.html"
-    //     //   //   env.RENDER_TYPE === "reactssr" ? "./hydrate.html" : "./index.html"
-    //     // ),
-    //   }),
-    // ],
     output: {
       filename: "[name].bundle.js",
       path: path.resolve(__dirname, "dist"),

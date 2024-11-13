@@ -20,17 +20,15 @@ module.exports = () => {
         {
           test: /\.js$/,
           loader: "babel-loader",
+          exclude: /node_modules/,
         },
       ],
     },
     output: {
-      filename: "[name].bundle.js",
+      filename: "client.bundle.js",
       path: path.resolve(__dirname, "dist"),
       clean: true,
       publicPath: "/",
-    },
-    optimization: {
-      runtimeChunk: "single",
     },
   };
 

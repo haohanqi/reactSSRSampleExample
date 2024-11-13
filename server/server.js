@@ -1,5 +1,4 @@
 const babelRegister = require("@babel/register");
-const staticHtmlTemplate = require("../utils/staticHtmlTemplate");
 
 babelRegister({
   ignore: [/[\\\/](build|server|node_modules)[\\\/]/],
@@ -12,7 +11,7 @@ const path = require("path");
 const cors = require("cors");
 const React = require("react");
 const App = require("../client/App").default;
-const { renderToString } = require("react-dom/server");
+const { renderToPipeableStream } = require("react-dom/server");
 
 const app = express();
 const PORT = 3001;
@@ -31,26 +30,25 @@ let todos = [
   { text: "Implement To-Do app with Express" },
 ];
 
-app.get("/", (req, res) => {
-  const reactElement = React.createElement(App);
-  const html = renderToString(reactElement);
-  res.send(html);
-});
-
-app.get("/ssr/react/hydration", (req, res) => {
-  const reactElement = React.createElement(App);
-  const reactHtml = renderToString(reactElement);
-  const html = staticHtmlTemplate(undefined, reactHtml);
-
-  res.send(html);
-});
-
-app.get("/ssr/react/withData", (req, res) => {
+app.get("/ssr/react/stream", (req, res) => {
   const initialProps = { initCount: 10 };
-  const reactElement = React.createElement(App, initialProps);
-  const reactHtml = renderToString(reactElement);
-  const html = staticHtmlTemplate(initialProps, reactHtml);
-  res.send(html);
+  const reactElement = React.createElement(App, { initCount: 10 });
+  const { pipe } = renderToPipeableStream(reactElement, {
+    bootstrapScripts: ["/client.bundle.js"], // Path to Webpack bundle
+    onShellReady() {
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "text/html");
+      res.write(` <script>
+          window.__INITIAL_PROPS__ = ${JSON.stringify(initialProps)};
+        </script>`);
+      pipe(res);
+    },
+    onError(err) {
+      console.error(err);
+      res.statusCode = 500;
+      res.send("Internal Server Error");
+    },
+  });
 });
 
 app.get("/ssr/traditionalSSR", (req, res) => {

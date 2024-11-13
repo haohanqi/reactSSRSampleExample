@@ -31,8 +31,8 @@ let todos = [
 ];
 
 app.get("/ssr/react/stream", (req, res) => {
-  const initialProps = { initCount: 10 };
-  const reactElement = React.createElement(App, { initCount: 10 });
+  const initialProps = { initCount: 10, todoList: todos };
+  const reactElement = React.createElement(App, initialProps);
   const { pipe } = renderToPipeableStream(reactElement, {
     bootstrapScripts: ["/client.bundle.js"], // Path to Webpack bundle
     onShellReady() {
@@ -75,15 +75,31 @@ app.get("/ssr/traditionalSSR", (req, res) => {
   res.send(html);
 });
 
+app.get("/api/todo", (req, res) => {
+  res.send(todos);
+});
+
 // Handle new to-do submission
-app.post("/api/todo/add", (req, res) => {
+app.post("/api/todo/ssr/add", (req, res) => {
   console.info("todo add:", JSON.stringify(req.body));
   const newTodo = req.body["content"];
   if (newTodo) {
     todos.push({ text: newTodo });
   }
   // Redirect to /todo to display updated list
-  res.redirect("http://localhost:3001/ssr/traditionalSSR");
+  res.redirect("http://localhost:3001/ssr/react/stream");
+});
+
+// Handle new to-do submission
+app.post("/api/todo/csr/add", (req, res) => {
+  console.info("todo add:", JSON.stringify(req.body));
+  const newTodo = req.body["content"];
+  if (newTodo) {
+    todos.push({ text: newTodo });
+  }
+  // Redirect to /todo to display updated list
+  // res.redirect("http://localhost:3001/ssr/react/stream");
+  res.send("success");
 });
 
 app.listen(PORT, () => {

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-// import TodoListSSR from "./TodoListSSR";
-import TodoListCSR from "./TodoListCSR";
+import TodoListForm from "./TodoListForm";
+// import TodoListCSR from "./TodoListCSR";
 
 const App = (props) => {
   // let [count, setCount] = useState(props.initCount);
@@ -13,8 +13,8 @@ const App = (props) => {
           <div>{count}</div>
           <button onClick={() => setCount(count + 1)}>click on</button>
         </div> */}
-        {/* <TodoListSSR todoList={props.todoList} /> */}
-        <TodoListCSR />
+        <TodoListForm todoList={props.todoList} />
+        {/* <TodoListCSR /> */}
       </body>
     </html>
   );
